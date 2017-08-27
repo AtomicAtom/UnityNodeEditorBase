@@ -11,7 +11,7 @@ namespace Nodes.Core.Example_Usage
     /// ... Which means a node or nodes in <see cref="Graph"/> might even be able to connect to nodes inside of a graph stored inside of a node.
     /// </summary>
     [Serializable]
-    public class GraphNode : Node
+    class GraphNode : Node
     {
         public Graph ChildGraphA;
         public Graph ChildGraphB;

@@ -7,10 +7,16 @@ using UnityEngine;
 namespace Nodes.Core
 {
     /// <summary>
-    /// codiemorgan: For fuck sakes...
+    /// 
     /// </summary> 
+    /// <remarks>
+    /// codiemorgan: This static class is probably like a magic school buss.
+    /// </remarks>
     static internal class ReferencedTypeSerializationHelper
     {
+
+        static List<Type> m_TempTypes = new List<Type>();
+
         ///// <summary>
         ///// Static Cache of serializable fields in an object
         ///// </summary>
@@ -78,7 +84,8 @@ namespace Nodes.Core
         static bool m_AreTypesInitialized;
 
         /// <summary>
-        /// Try to find - and register, all external loaded types inheriting from <see cref="ReferencedType"/>
+        /// helper which attempts to find and register, all external loaded types inheriting from <see cref="ReferencedType"/> 
+        /// in all .NET/Moino assembies (including asset script assembly) currently loaded by Unity
         /// so we can actually recognize ALL serialized objects in a graph correctly on deserialization.
         /// </summary>
         static internal void CheckSerializationInitialized()
@@ -94,13 +101,14 @@ namespace Nodes.Core
                     if (ass.FullName == myAssembly.FullName)
                         continue; // skip our own assembly
 
-                    // Skip these assembly names:
+                    // Ignore these assembly names:
                     if
                     (
                         ass.FullName == "UnityEngine" ||
-                        ass.FullName == "UnityEngine.UI" ||
-                        ass.FullName == "UnityEngine.Graphs" ||
-                        ass.FullName == "UnityEditor"
+                        ass.FullName == "UnityEditor" ||
+                        ass.FullName == "UnityPlayer" || // soon(tm)
+                        ass.FullName.Contains("UnityEngine.") ||
+                        ass.FullName.Contains("UnityEditor.")
                     )   continue;
 
                     // cannot use GetExportedTypes() as an exception is thrown from dynamically loaded assemblies.
@@ -125,9 +133,7 @@ namespace Nodes.Core
 
 
         /// <summary>
-        /// Alternative to try find types that can be found in assembly - but not found because of a UnityScript outside of assembly.
-        /// 
-        /// This is so we cann correctly serialize/deserialize mixed inheriting <see cref="GraphObject"/> array element types independently;
+        /// Cached dictionary of all known types that inherit from <see cref="ReferencedType"/>
         /// </summary>
         static Dictionary<string, Type> m_KnownTypes = new Dictionary<string, Type>();
 
@@ -150,6 +156,36 @@ namespace Nodes.Core
             return m_KnownTypes.ContainsKey(typeName)
                 ? m_KnownTypes[typeName]
                 : Type.GetType(typeName, false);
+        }
+
+
+
+
+
+        /// <summary>
+        /// Helper to get all types that inherit from '<typeparamref name="T"/>, <see cref="ReferencedType"/>'.
+        /// The results include types in ALL loaded .NET/MONO assemblies currently loaded by unity - including those defined in loose
+        /// C# scripts within the assets folder.
+        /// </summary>
+        public static Type[] GetAllInheritedTypes<T>() where T : ReferencedType
+        {
+            CheckSerializationInitialized();
+            m_TempTypes.Clear();
+            Type desiredType = typeof(T);
+            foreach
+            (
+                KeyValuePair<string, Type> kv in m_KnownTypes.Where
+                (
+                    (KeyValuePair<string, Type> k) =>
+                    {
+                        return !k.Value.IsAbstract && (k.Value.IsSubclassOf(desiredType) || desiredType.IsAssignableFrom(k.Value));
+                    }
+                )
+            )
+            {
+                m_TempTypes.Add(kv.Value);
+            }
+            return m_TempTypes.ToArray();
         }
     }
 

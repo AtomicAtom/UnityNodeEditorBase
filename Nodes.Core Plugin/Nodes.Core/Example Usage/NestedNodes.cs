@@ -9,7 +9,7 @@ namespace Nodes.Core.Example_Usage
     /// Basic Example which demonstrates what a tree of nodes nested inside of other nodes (A Node Tree) might look like.
     /// </summary>
     [Serializable]
-    public class TreeNode : Node
+    class TreeNode : Node
     {
         /// <summary>
         /// a reference to the parent node - stored as a reference. This must be set when a treenode is added to its parent treenode.
@@ -77,9 +77,9 @@ namespace Nodes.Core.Example_Usage
             return false;
         }
 
-        protected override void Start()
+        protected override void OnCreated()
         {
-            base.Start();
+            base.OnCreated();
             OnDestroy += TreeNode_OnDestroy;
         }
 

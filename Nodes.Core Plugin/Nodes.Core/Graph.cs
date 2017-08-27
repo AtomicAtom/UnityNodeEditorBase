@@ -90,7 +90,7 @@ namespace Nodes.Core
         }
 
         /// <summary>
-        /// Forces the cache to be updated the next time cached objects need to be accessed.
+        /// Forces the cache to be updated the next time cached arrays need to be accessed.
         /// </summary>
         public void SetDirty()
         {
@@ -128,7 +128,7 @@ namespace Nodes.Core
         #endregion
 
         /// <summary>
-        /// Returns true if cached arrays in this graph needs ot be updated.
+        /// Returns true if cached arrays in this graph needs to be updated.
         /// </summary>
         public bool IsDirty
         {
@@ -202,7 +202,7 @@ namespace Nodes.Core
 
         T AddObjectToGraph<T>() where T : GraphObject
         {
-            T result = ReferencedType.CreateInstance<T>();
+            T result = CreateInstance<T>();
             AddObjectToGraph(result);
             return result;
         }
@@ -348,13 +348,14 @@ namespace Nodes.Core
         /*
          * 
          * Unity JSON serializer does not recognize each type in an array as a seperate type from the base type they inherit from.
-         * We manually serialize each object one by one to json and store the JSON strings as an array
+         * We manually serialize each object one by one to json and store the JSON strings as a a list.
          * 
          */
 
-        [SerializeField]
+        [SerializeField, HideInInspector]
         string[] m_GraphObjectSerializedData = new string[0]; 
-        [SerializeField]
+
+        [SerializeField, HideInInspector]
         string[] m_GraphObjectSerializedTypes = new string[0];
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
@@ -379,7 +380,16 @@ namespace Nodes.Core
                 Type t = ReferencedTypeSerializationHelper.TryGetKnownType(m_GraphObjectSerializedTypes[i]);
      
                 if(t != null)
-                m_Objects.Add((GraphObject)JsonUtility.FromJson(m_GraphObjectSerializedData[i], t));
+                {
+                    m_Objects.Add((GraphObject)JsonUtility.FromJson(m_GraphObjectSerializedData[i], t)); 
+                }
+                else
+                {
+                    Debug.LogWarning
+                    (
+                        string.Format("Unable to deserialize Graph Object of type '{0}' because it's type could not be found.", m_GraphObjectSerializedTypes[i])
+                    );
+                }
             }
             m_IsModified = true;
             if (m_Objects.Count > 0)

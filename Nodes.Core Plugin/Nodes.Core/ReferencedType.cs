@@ -24,7 +24,7 @@ namespace Nodes.Core
         static List<ReferencedType> m_AllInMemory = new List<ReferencedType>();
 
         /// <summary>
-        /// Memory items are cast to  array for  faster iteration when needed;
+        /// Memory items are cast to  array for  faster iteration when needed and cached;
         /// </summary>
         static ReferencedType[] m_AllInMemoryAsArray;
         static bool m_AllInMemoryModified;
@@ -36,10 +36,14 @@ namespace Nodes.Core
             m_IsDestroying;
 
 
+        /// <summary>
+        /// Cached array of all known types that inherit from <see cref="ReferencedType"/>.
+        /// </summary>
+        static Type[] m_AllInheritedReferencedTypes;
+
 #region Events
 
-        protected event Action
-            OnCreate,
+        protected event Action 
             OnDestroy,
             
             // Events which can be used when custom serialization logic is required
@@ -71,6 +75,24 @@ namespace Nodes.Core
             }
         }
 
+     
+        /// <summary>
+        /// Returns an array of all known types which inherit from <see cref="ReferencedType"/>, not including abstract types.
+        /// This includes types in all loaded .NET/Mono assemblies, including those defined by scripts in the unity assets folder.
+        /// </summary>
+        public static Type[] AllInheritingTypes
+        {
+            get
+            {
+                if (m_AllInheritedReferencedTypes == null)
+                    m_AllInheritedReferencedTypes = ReferencedTypeSerializationHelper.GetAllInheritedTypes<ReferencedType>();
+
+                // we return a copy so the original cached array cannot be modified by reference
+                return (Type[])m_AllInheritedReferencedTypes.Clone();
+            }
+        }
+
+
         #endregion
 
 
@@ -81,6 +103,8 @@ namespace Nodes.Core
 
             m_AllInMemory.Add(this);
             m_AllInMemoryModified = true;
+
+            OnCreated();
         }
         /// <summary>
         /// This is added so the object is actually removed from lists.
@@ -93,13 +117,18 @@ namespace Nodes.Core
 
 #region Utility
 
+
+
+
+        /// <summary>
+        /// Create a new referenced type of the specified type.  
+        /// <see cref="CreateInstance{T}"/> is preferred over the constructor of this class.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T CreateInstance<T>() where T : ReferencedType
         {
-            T result = System.Activator.CreateInstance<T>();
-            result.Start();
-            if (result.OnCreate != null)
-                result.OnCreate.TryInvoke();
-          
+            T result = System.Activator.CreateInstance<T>(); 
             return result;
         }
 
@@ -150,11 +179,15 @@ namespace Nodes.Core
             }
         }
 
+
+
+       
+
 #endregion
 
 #region Overridables
 
-        protected virtual void Start()
+        protected virtual void OnCreated()
         {
 
         }

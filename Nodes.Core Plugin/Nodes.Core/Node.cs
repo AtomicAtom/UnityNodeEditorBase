@@ -18,9 +18,12 @@ namespace Nodes.Core
         /// </summary>
         [SerializeField]
         List<Reference> m_Connections = new List<Reference>();
-
-        [SerializeField]
-        string m_Name = "Node";
+ 
+        /// <summary>
+        /// Cached array of all known types which inherit from <see cref="Node"/>, not including Abstract types.
+        /// This includes types in all loaded .NET/Mono assemblies, including those defined by scripts in the unity assets folder.
+        /// </summary>
+        static Type[] m_AllKnownInheritingNodeTypes;
 
 #region Events
 
@@ -35,20 +38,7 @@ namespace Nodes.Core
 
  #region Properties
          
-        /// <summary>
-        /// Get/Set the name of this node.
-        /// </summary>
-        public string Name
-        {
-            get
-            {
-                return m_Name;
-            }
-            set
-            {
-                m_Name = value;
-            }
-        }
+ 
 
 
 
@@ -57,6 +47,21 @@ namespace Nodes.Core
             return m_Connections[index].TryGetValueAsType<Connection>();
         }
 
+        /// <summary>
+        /// Returns an array of all known types which inherit from <see cref="Node"/>, not including abstract types.
+        /// This includes types in all loaded .NET/Mono assemblies, including those defined by scripts in the unity assets folder.
+        /// </summary>
+        public static Type[] AllKnownInheritingNodeTypes
+        {
+            get
+            {
+                if (m_AllKnownInheritingNodeTypes == null)
+                    m_AllKnownInheritingNodeTypes = ReferencedTypeSerializationHelper.GetAllInheritedTypes<Node>();
+
+                // return a copy so the cached array cannot be modified by reference
+                return (Type[])m_AllKnownInheritingNodeTypes.Clone();
+            }
+        }
 
 #endregion
 
