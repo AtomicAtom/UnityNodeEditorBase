@@ -12,6 +12,21 @@ namespace Nodes.Core
     /// Since I am implementing "Graph" as a <see cref="ReferencedType"/> - then this means it will be possible 
     /// for one graph (or nodes in it) - to implement connections between  multiple graphs.
     /// 
+    /// 
+    /// TODO: Graphs restricted to a specific node types:
+    /// [Serializable]
+    /// class BehaviourGraph : Graph&lt;BehaviourNodeBaseClass&gt;
+    /// {
+    ///    // extend with behaviour graph stuff
+    /// } 
+    /// 
+    /// TODO: User specified registration of supported nodes in a specified graph
+    /// void OnInitialize()
+    /// {
+    ///     SupportNodeType&lt;MathNodebase&gt;();
+    ///     SupportNodeType&lt;MatrixNodes&gt;();
+    /// }
+    /// 
     /// </remarks>
     [Serializable]
     public class Graph : ReferencedType, ISerializationCallbackReceiver
