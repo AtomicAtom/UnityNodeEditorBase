@@ -90,6 +90,7 @@ namespace Nodes.Core
         /// </summary>
         static internal void CheckSerializationInitialized()
         {
+            // We do this only once and cache all the types.
             if(!m_AreTypesInitialized)
             {
                 Assembly myAssembly = Assembly.GetAssembly(typeof(ReferencedType));

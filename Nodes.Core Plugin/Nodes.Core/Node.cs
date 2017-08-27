@@ -42,10 +42,10 @@ namespace Nodes.Core
 
 
 
-        public Connection GetConnection(int index)
-        {
-            return m_Connections[index].TryGetValueAsType<Connection>();
-        }
+        //public Connection GetConnection(int index)
+        //{
+        //    return m_Connections[index].TryGetValueAsType<Connection>();
+        //}
 
         /// <summary>
         /// Returns an array of all known types which inherit from <see cref="Node"/>, not including abstract types.

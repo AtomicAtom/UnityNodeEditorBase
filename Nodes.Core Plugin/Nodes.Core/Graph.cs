@@ -59,10 +59,10 @@ namespace Nodes.Core
         /// </summary>
         Node[] m_CachedNodes;
 
-        /// <summary>
-        /// Cached connection in our graph;
-        /// </summary>
-        Connection[] m_CachedConnections;
+        ///// <summary>
+        ///// Cached connection in our graph;
+        ///// </summary>
+        //Connection[] m_CachedConnections;
 
         /// <summary>
         /// Cached array of all objects (Arrays are faster to iterate than lists).
@@ -77,8 +77,8 @@ namespace Nodes.Core
                 m_Objects.RemoveNullOrDestroyedEntries();
                 // Update Nodes:
                 m_Objects.UpdateCachedArrayWithType(ref m_CachedNodes);
-                // Update Connections:
-                m_Objects.UpdateCachedArrayWithType(ref m_CachedConnections);
+                //// Update Connections:
+                //m_Objects.UpdateCachedArrayWithType(ref m_CachedConnections);
 
                 // acessable cached array of all objects:
                 m_Objects.UpdateCachedArrayWithType(ref m_CachedAllObjects);
@@ -106,14 +106,14 @@ namespace Nodes.Core
             m_CachedNodes.CopyNonAlloc(ref result);
         }
 
-        /// <summary>
-        /// Get all the connections in this graph.
-        /// </summary> 
-        public void GetConnectionsNonAlloc(ref Connection[] result)
-        {
-            UpdateCacheIfDirty();
-            m_CachedConnections.CopyNonAlloc(ref result);
-        }
+        ///// <summary>
+        ///// Get all the connections in this graph.
+        ///// </summary> 
+        //public void GetConnectionsNonAlloc(ref Connection[] result)
+        //{
+        //    UpdateCacheIfDirty();
+        //    m_CachedConnections.CopyNonAlloc(ref result);
+        //}
 
         /// <summary>
         /// Get All Objects in this graph.
@@ -275,12 +275,12 @@ namespace Nodes.Core
         /// </summary>
         public void DestroyAllConnections()
         {
-            UpdateCacheIfDirty();
+            //UpdateCacheIfDirty();
 
-            for(int i = 0; i < m_CachedConnections.Length; i++)
-            {
-                DestroyObject(m_CachedConnections[i]);
-            }
+            //for(int i = 0; i < m_CachedConnections.Length; i++)
+            //{
+            //    DestroyObject(m_CachedConnections[i]);
+            //}
         }
 
 
