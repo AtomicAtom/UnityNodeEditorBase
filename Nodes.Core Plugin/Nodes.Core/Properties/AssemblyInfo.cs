@@ -34,3 +34,8 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+
+
+// Expose Nodes.Core none public internal things to our editor api:
+[assembly: InternalsVisibleTo("Nodes.Core.Editor", AllInternalsVisible = true)]
