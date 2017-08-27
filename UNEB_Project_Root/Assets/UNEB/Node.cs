@@ -9,7 +9,7 @@ namespace UNEB
     /// <summary>
     /// The visual representation of a logic unit such as an object or function.
     /// </summary>
-    public class Node : ScriptableObject
+    public abstract class Node : ScriptableObject
     {
         public static readonly Vector2 kDefaultSize = new Vector2(140f, 110f);
 
@@ -45,6 +45,19 @@ namespace UNEB
         [SerializeField, HideInInspector]
         private List<NodeInput> _inputs = new List<NodeInput>();
 
+        // Hides the node asset.
+        // Sets up the name via type information.
+        void OnEnable()
+        {
+            hideFlags = HideFlags.HideInHierarchy;
+            name = GetType().Name;
+
+#if UNITY_EDITOR
+            name = ObjectNames.NicifyVariableName(name);
+#endif
+
+        }
+
         /// <summary>
         /// Always call the base OnDisable() to cleanup the connection objects.
         /// </summary>
@@ -65,17 +78,10 @@ namespace UNEB
                 });
         }
 
-        void OnEnable()
-        {
-            hideFlags = HideFlags.HideInHierarchy;
-        }
-
         /// <summary>
         /// Use this for initialization.
         /// </summary>
-        public virtual void Init()
-        {
-            name = "Node";
+        public virtual void Init() {
             bodyRect.size = kDefaultSize;
         }
 

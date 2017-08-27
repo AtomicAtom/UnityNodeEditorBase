@@ -12,8 +12,6 @@ namespace UNEB
         {
             base.Init();
 
-            name = "Basic Node";
-
             AddInput("Input");
             AddOutput("Ouput");
 

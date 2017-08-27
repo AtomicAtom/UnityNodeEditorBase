@@ -8,10 +8,8 @@ public class SelectNode : Node
 {
     private Select _op = new Select();
 
-    public SelectNode()
+    public override void Init()
     {
-        name = "Select";
-
         var inputA = AddInput();
         inputA.name = "Input A";
 

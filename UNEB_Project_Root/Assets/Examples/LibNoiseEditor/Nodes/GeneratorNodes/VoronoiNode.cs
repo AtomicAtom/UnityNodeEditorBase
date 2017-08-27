@@ -7,10 +7,8 @@ public class VoronoiNode : Node
 {
     private Voronoi _noise = new Voronoi();
 
-    public VoronoiNode()
+    public override void Init()
     {
-        name = "Voronoi";
-
         var noiseIn = AddInput();
         noiseIn.name = "Input";
 
