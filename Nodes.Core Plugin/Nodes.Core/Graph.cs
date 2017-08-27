@@ -14,10 +14,9 @@ namespace Nodes.Core
     /// 
     /// </remarks>
     [Serializable]
-    public class Graph : ReferencedType
+    public class Graph : ReferencedType, ISerializationCallbackReceiver
     {
-        [SerializeField]
-        string m_Name = "Graph";
+
 
 
 
@@ -26,7 +25,7 @@ namespace Nodes.Core
         /// <summary>
         /// ALL <see cref="GraphObject"/>s in the Graph. This includes <see cref="Node"/> types and <see cref="Connection"/> types.
         /// </summary>
-        [SerializeField]
+        //[SerializeField]
         List<GraphObject> m_Objects = new List<GraphObject>();
 
 
@@ -47,6 +46,13 @@ namespace Nodes.Core
         /// </summary>
         public event Action 
             OnUpdateCache;
+
+        /// <summary>
+        /// Event raised after objects have been deserialized. 
+        /// (this will trigger in both Play and Edit modes in Unity via Unity's internal serializers).
+        /// </summary>
+        public event Action
+            OnDeserialized;
 
         /// <summary>
         /// Chached nodes in our graph
@@ -289,15 +295,6 @@ namespace Nodes.Core
 
  
 
-        /// <summary>
-        /// Must be invoked after a graph is deserialized or updated
-        /// </summary>
-        public void OnAfterDeserialized()
-        {
-            // check Graph references assigned:
-
-        }
-
 
         internal IEnumerator<GraphObject> GetEnumerator()
         {
@@ -341,6 +338,65 @@ namespace Nodes.Core
             }
             return false;
         }
+
+        #endregion
+
+
+
+        #region Serialization Trickery
+
+        /*
+         * 
+         * Unity JSON serializer does not recognize each type in an array as a seperate type from the base type they inherit from.
+         * We manually serialize each object one by one to json and store the JSON strings as an array
+         * 
+         */
+
+        [SerializeField]
+        string[] m_GraphObjectSerializedData = new string[0]; 
+        [SerializeField]
+        string[] m_GraphObjectSerializedTypes = new string[0];
+
+        void ISerializationCallbackReceiver.OnBeforeSerialize()
+        {
+            UpdateCacheIfDirty();
+            m_GraphObjectSerializedData = new string[m_Objects.Count];
+            m_GraphObjectSerializedTypes = new string[m_Objects.Count];
+            for (int i = 0; i < m_Objects.Count; i++)
+            {
+                m_GraphObjectSerializedData[i] = JsonUtility.ToJson(m_Objects[i]);
+                Type T = m_Objects[i].GetType();
+                m_GraphObjectSerializedTypes[i] = T.FullName;
+            }
+        }
+
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize()
+        {
+            m_Objects.Clear(); 
+            for(int i = 0; i < m_GraphObjectSerializedData.Length && i < m_GraphObjectSerializedTypes.Length; i++)
+            {
+                Type t = ReferencedTypeSerializationHelper.TryGetKnownType(m_GraphObjectSerializedTypes[i]);
+     
+                if(t != null)
+                m_Objects.Add((GraphObject)JsonUtility.FromJson(m_GraphObjectSerializedData[i], t));
+            }
+            m_IsModified = true;
+            if (m_Objects.Count > 0)
+                OnDeserialized.TryInvoke();
+        }
+
+
+
+
+        ///// <summary>
+        ///// Force Register a <see cref="GraphObject"/> type that is not known by the Nodes.Core namespace.
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        //public static void ManuallyRegisterType<T>() where T: GraphObject
+        //{
+        //    ReferencedTypeSerializationHelper.MarkKnownType(typeof(T));
+        //}
 
         #endregion
     }

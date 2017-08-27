@@ -10,6 +10,9 @@ namespace Nodes.Core
     [Serializable]
     public class GraphObject : ReferencedType
     {
+        [SerializeField]
+        string m_Name;
+
         /// <summary>
         /// Serializable Reference to the graph which owns this node.
         /// </summary>
@@ -22,7 +25,6 @@ namespace Nodes.Core
         protected event Action<Graph>
             OnGraphChanged;
 
- 
 
 
         /// <summary>
@@ -39,11 +41,37 @@ namespace Nodes.Core
                 if(m_Owner != (Reference)value)
                 {
                     m_Owner = value;
-                    OnGraphChanged(value);
+                    OnGraphChanged.TryInvoke(value);
                 } 
             }
         }
  
-         
+
+
+        public string Name
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(m_Name))
+                    m_Name = GetDefaultName();
+                return m_Name;
+            }
+            set
+            {
+                m_Name = value;
+            }
+        }
+
+        protected GraphObject()
+        {
+            m_Name = GetDefaultName();
+        }
+
+        string GetDefaultName()
+        {
+            return GetType().Name + " " + GUID.Substring(GUID.Length - 7, 6);
+        }
+
+
     }
 }

@@ -10,7 +10,9 @@ namespace Nodes.Core
     /// <summary>
     /// baseclass for anything that can be referenced and have references to it restored via a <see cref="Reference"/> type, including nodes/connections/etc;
     /// </summary>
-    public abstract class ReferencedType : System.IDisposable
+    public abstract class ReferencedType : 
+        System.IDisposable , 
+        ISerializationCallbackReceiver
     {
 
         string m_ID = System.Guid.NewGuid().ToString();
@@ -38,7 +40,11 @@ namespace Nodes.Core
 
         protected event Action
             OnCreate,
-            OnDestroy;
+            OnDestroy,
+            
+            // Events which can be used when custom serialization logic is required
+            OnBeforeSerialization,
+            OnAfterDeserialization;
 
 #endregion
 
@@ -67,16 +73,33 @@ namespace Nodes.Core
 
         #endregion
 
+
+        protected ReferencedType()
+        {
+            ReferencedTypeSerializationHelper.CheckSerializationInitialized();
+            ReferencedTypeSerializationHelper.MarkKnownType(this);
+
+            m_AllInMemory.Add(this);
+            m_AllInMemoryModified = true;
+        }
+        /// <summary>
+        /// This is added so the object is actually removed from lists.
+        /// </summary>
+        ~ReferencedType()
+        {
+            if (!IsDestroyed)
+                Destroy();
+        }
+
 #region Utility
 
-        internal static T CreateInstance<T>() where T : ReferencedType
+        public static T CreateInstance<T>() where T : ReferencedType
         {
             T result = System.Activator.CreateInstance<T>();
             result.Start();
             if (result.OnCreate != null)
                 result.OnCreate.TryInvoke();
-            m_AllInMemory.Add(result);
-            m_AllInMemoryModified = true;
+          
             return result;
         }
 
@@ -156,6 +179,16 @@ namespace Nodes.Core
             m_AllInMemory.Remove(this);
             m_AllInMemoryModified = true;
             GC.SuppressFinalize(this);
+        }
+
+        void ISerializationCallbackReceiver.OnBeforeSerialize()
+        {
+            OnBeforeSerialization.TryInvoke();
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize()
+        {
+            OnAfterDeserialization.TryInvoke();
         }
 
 

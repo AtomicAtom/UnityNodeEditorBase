@@ -1,0 +1,270 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Nodes.Core</name>
+    </assembly>
+    <members>
+        <member name="T:Nodes.Core.Example_Usage.GraphNode">
+            <summary>
+            Example that shows Graphs can be stored inside nodes even...
+            ... Which means a node or nodes in <see cref="T:Nodes.Core.Graph"/> might even be able to connect to nodes inside of a graph stored inside of a node.
+            </summary>
+        </member>
+        <member name="T:Nodes.Core.Example_Usage.TreeNode">
+            <summary>
+            Basic Example which demonstrates what a tree of nodes nested inside of other nodes (A Node Tree) might look like.
+            </summary>
+        </member>
+        <member name="F:Nodes.Core.Example_Usage.TreeNode.m_ParentNode">
+            <summary>
+            a reference to the parent node - stored as a reference. This must be set when a treenode is added to its parent treenode.
+            </summary>
+        </member>
+        <member name="F:Nodes.Core.Example_Usage.TreeNode.m_ChildNodes">
+            <summary>
+            Children of a treenode are stored here directly instead of in the parent graph. But since References are tracked by GUIDS - 
+            then creating connections between nodes inside a node tree to a graph containing the treenode would be a simple matter.
+            </summary>
+        </member>
+        <member name="T:Nodes.Core.Graph">
+            <summary>
+            A Serializable Graph Object
+            </summary>
+            <remarks>
+            Since I am implementing "Graph" as a <see cref="T:Nodes.Core.ReferencedType"/> - then this means it will be possible 
+            for one graph (or nodes in it) - to implement connections between  multiple graphs.
+            
+            </remarks>
+        </member>
+        <member name="F:Nodes.Core.Graph.m_Objects">
+            <summary>
+            ALL <see cref="T:Nodes.Core.GraphObject"/>s in the Graph. This includes <see cref="T:Nodes.Core.Node"/> types and <see cref="T:Nodes.Core.Connection"/> types.
+            </summary>
+        </member>
+        <member name="E:Nodes.Core.Graph.OnUpdateCache">
+            <summary>
+            Event raised when cached arrays in this graph are updated.
+            </summary>
+        </member>
+        <member name="E:Nodes.Core.Graph.OnDeserialized">
+            <summary>
+            Event raised after objects have been deserialized. 
+            (this will trigger in both Play and Edit modes in Unity via Unity's internal serializers).
+            </summary>
+        </member>
+        <member name="F:Nodes.Core.Graph.m_CachedNodes">
+            <summary>
+            Chached nodes in our graph
+            </summary>
+        </member>
+        <member name="F:Nodes.Core.Graph.m_CachedConnections">
+            <summary>
+            Cached connection in our graph;
+            </summary>
+        </member>
+        <member name="F:Nodes.Core.Graph.m_CachedAllObjects">
+            <summary>
+            Cached array of all objects (Arrays are faster to iterate than lists).
+            </summary>
+        </member>
+        <member name="M:Nodes.Core.Graph.SetDirty">
+            <summary>
+            Forces the cache to be updated the next time cached objects need to be accessed.
+            </summary>
+        </member>
+        <member name="M:Nodes.Core.Graph.GetNodesNonAlloc(Nodes.Core.Node[]@)">
+            <summary>
+            Get all the nodes in this graph.
+            </summary> 
+        </member>
+        <member name="M:Nodes.Core.Graph.GetConnectionsNonAlloc(Nodes.Core.Connection[]@)">
+            <summary>
+            Get all the connections in this graph.
+            </summary> 
+        </member>
+        <member name="M:Nodes.Core.Graph.GetAllObjectsNonAlloc(Nodes.Core.GraphObject[]@)">
+            <summary>
+            Get All Objects in this graph.
+            </summary>
+            <param name="result"></param>
+        </member>
+        <member name="P:Nodes.Core.Graph.IsDirty">
+            <summary>
+            Returns true if cached arrays in this graph needs ot be updated.
+            </summary>
+        </member>
+        <member name="M:Nodes.Core.Graph.IndexOf(Nodes.Core.GraphObject)">
+            <summary>
+            Retrieve the index of the specified graph object.
+            </summary>
+            <param name="obj"></param>
+            <returns>Index of the <see cref="T:Nodes.Core.GraphObject"/>. -1 if object is null or does not exist in this graph.</returns>
+        </member>
+        <member name="M:Nodes.Core.Graph.AddObject(Nodes.Core.GraphObject)">
+            <summary>
+            Add an object to this graph;
+            </summary>
+            <param name="obj"></param>
+        </member>
+        <member name="M:Nodes.Core.Graph.DestroyObject(Nodes.Core.GraphObject)">
+            <summary>
+            Remove and Destroy a <see cref="T:Nodes.Core.GraphObject"/> in this graph.
+            </summary>
+            <param name="obj"></param>
+        </member>
+        <member name="M:Nodes.Core.Graph.DestroyAllConnections">
+            <summary>
+            Destroy only the <see cref="T:Nodes.Core.Connection"/> types in this graph.
+            </summary>
+        </member>
+        <member name="M:Nodes.Core.Graph.DestroyConnectionsFromNode(Nodes.Core.Node)">
+            <summary>
+            Remove any connections that are connected to this node
+            </summary>
+            <param name="node"></param>
+        </member>
+        <member name="F:Nodes.Core.Graph.tmp_GraphObjects">
+            <summary>
+            Temp array for some operations within a graph- to avoid allocating new temporary arrays.
+            </summary>
+        </member>
+        <member name="M:Nodes.Core.Graph.ResolveReference``1(``0@,System.String,Nodes.Core.Graph)">
+            <summary>
+            Resolve a reference to a <see cref="T:Nodes.Core.GraphObject"/> only in the specified specified <see cref="T:Nodes.Core.Graph"/>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="result"></param>
+            <param name="guid"></param>
+            <param name="inGraph"></param>
+            <returns>True if graph contains matching <see cref="T:Nodes.Core.ReferencedType"/> of the specified type</returns>
+        </member>
+        <member name="T:Nodes.Core.GraphObject">
+            <summary>
+            Baseclass for everything in a <see cref="T:Nodes.Core.Graph"/>. This exposes the <see cref="P:Nodes.Core.GraphObject.Owner"/> property which enables a Node/Connection/etc to have a reference to the graph it resides in.
+            </summary>
+        </member>
+        <member name="F:Nodes.Core.GraphObject.m_Owner">
+            <summary>
+            Serializable Reference to the graph which owns this node.
+            </summary>
+        </member>
+        <member name="E:Nodes.Core.GraphObject.OnGraphChanged">
+            <summary>
+            Event triggered when this Graph Object is added to a graph or moved to a new graph.
+            </summary>
+        </member>
+        <member name="P:Nodes.Core.GraphObject.Owner">
+            <summary>
+            The Graph this node belongs to
+            </summary>
+        </member>
+        <member name="T:Nodes.Core.Node">
+            <summary>
+            Baseclass for all Node Types. Inheriting Types must implement the <see cref="T:System.SerializableAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:Nodes.Core.Node.m_Connections">
+            <summary>
+            All connection references from this node.
+            </summary>
+        </member>
+        <member name="P:Nodes.Core.Node.Name">
+            <summary>
+            Get/Set the name of this node.
+            </summary>
+        </member>
+        <member name="T:Nodes.Core.Reference">
+            <summary>
+            Serializable Reference for <see cref="T:Nodes.Core.ReferencedType"/> objects. All inheriting types should use <see cref="T:System.SerializableAttribute"/>.
+            
+            
+            This is to behave similar to unity's new ExposedReference struct (which does not accommodate Non Unity objects),
+            but we use our own for compatibility with older versions of Unity instead of using their type.
+            </summary> 
+            <remarks>
+            Originally I intended to use a baseclass and have inheriting types for seperate class type references - but this would imply
+            creating seperate operators for every type. So instead we can just use one reference type for ALL <see cref="T:Nodes.Core.ReferencedType"/> objects instead. 
+            </remarks>
+        </member>
+        <member name="P:Nodes.Core.Reference.Empty">
+            <summary>
+            An empty reference. Casts to (Null).
+            </summary>
+        </member>
+        <member name="F:Nodes.Core.Reference.m_ReferenceGuid">
+            <summary>
+            Serialized guid needed to resolved reference after deserialization;
+            </summary>
+        </member>
+        <member name="M:Nodes.Core.Reference.IsGraphObjectReference">
+            <summary>
+            Returns true if this reference currently references a <see cref="T:Nodes.Core.GraphObject"/> type.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Nodes.Core.ReferencedType">
+            <summary>
+            baseclass for anything that can be referenced and have references to it restored via a <see cref="T:Nodes.Core.Reference"/> type, including nodes/connections/etc;
+            </summary>
+        </member>
+        <member name="F:Nodes.Core.ReferencedType.m_AllInMemory">
+            <summary>
+            All <see cref="T:Nodes.Core.ReferencedType"/> objects in memory. This includes all graphs, nodes, connections - etc. Used only to help resolve references
+            after a Graph is serialized.
+            </summary>
+        </member>
+        <member name="F:Nodes.Core.ReferencedType.m_AllInMemoryAsArray">
+            <summary>
+            Memory items are cast to  array for  faster iteration when needed;
+            </summary>
+        </member>
+        <member name="P:Nodes.Core.ReferencedType.GUID">
+            <summary>
+            The Globally unique ID of this object. This is used to resolved references after deserialization;
+            </summary>
+        </member>
+        <member name="M:Nodes.Core.ReferencedType.Finalize">
+            <summary>
+            This is added so the object is actually removed from lists.
+            </summary>
+        </member>
+        <member name="M:Nodes.Core.ReferencedType.ResolveReference``1(``0@,System.String)">
+            <summary>
+            Used to resolve a reference to a <see cref="T:Nodes.Core.ReferencedType"/> object via a GUID.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="result"></param>
+            <param name="guid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Nodes.Core.ReferencedType.UpdateMemoryArrayIfModified">
+            <summary>
+            Updates a memory array of all objects.
+            </summary>
+        </member>
+        <member name="M:Nodes.Core.ReferencedType.op_Implicit(Nodes.Core.ReferencedType)~System.Boolean">
+            <summary>
+            Allows these objects to be cast as bool like unity objects.
+            </summary>
+            <param name="type"></param>
+        </member>
+        <member name="T:Nodes.Core.ReferencedTypeSerializationHelper">
+            <summary>
+            codiemorgan: For fuck sakes...
+            </summary> 
+        </member>
+        <member name="M:Nodes.Core.ReferencedTypeSerializationHelper.CheckSerializationInitialized">
+            <summary>
+            Try to find - and register, all external loaded types inheriting from <see cref="T:Nodes.Core.ReferencedType"/>
+            so we can actually recognize ALL serialized objects in a graph correctly on deserialization.
+            </summary>
+        </member>
+        <member name="F:Nodes.Core.ReferencedTypeSerializationHelper.m_KnownTypes">
+            <summary>
+            Alternative to try find types that can be found in assembly - but not found because of a UnityScript outside of assembly.
+            
+            This is so we cann correctly serialize/deserialize mixed inheriting <see cref="T:Nodes.Core.GraphObject"/> array element types independently;
+            </summary>
+        </member>
+    </members>
+</doc>
