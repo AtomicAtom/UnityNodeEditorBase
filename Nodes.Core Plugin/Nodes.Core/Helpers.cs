@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace UNEB.Core
+namespace UNEB
 {
     /// <summary>
     /// General Purpose Helpers.

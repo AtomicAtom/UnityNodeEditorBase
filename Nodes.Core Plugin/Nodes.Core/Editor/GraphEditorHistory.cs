@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace UNEB.Core.Editor
+namespace UNEB.Editor
 {
     /// <summary>
     /// PlaceHolder

@@ -5,7 +5,7 @@ using System.Text;
 
 using UnityEngine;
 
-namespace UNEB.Core
+namespace UNEB
 {
 
     

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace UNEB.Core
+namespace UNEB
 {
     /// <summary>
     /// Baseclass for Node Output types.
@@ -30,6 +30,10 @@ namespace UNEB.Core
         /// If not <see cref="NodePort{TNode, TTarget, TSelf}.IsConnected"/>, this will return <see cref="Connection.Empty"/>
         /// </summary>
         public override Connection GetConnection => this;
- 
+
+        public override bool CanConnect(NodeInputBase<Node> target)
+        {
+            return base.CanConnect(target);
+        }
     }
 }

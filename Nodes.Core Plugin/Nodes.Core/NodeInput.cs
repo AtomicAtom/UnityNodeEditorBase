@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-namespace UNEB.Core
+namespace UNEB
 {
     [Serializable]
     public abstract class NodeInputBase<TNode> :

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("UNEB.Core")]
+[assembly: AssemblyTitle("UNEB")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("UNEB.Core")]
+[assembly: AssemblyProduct("UNEB")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -37,5 +37,5 @@ using System.Runtime.InteropServices;
 
 
 
-// Expose UNEB.Core none public internal things to our editor api:
-[assembly: InternalsVisibleTo("UNEB.Core.Editor", AllInternalsVisible = true)]
+// Expose UNEB none public internal things to our editor api:
+[assembly: InternalsVisibleTo("UNEB.Editor", AllInternalsVisible = true)]

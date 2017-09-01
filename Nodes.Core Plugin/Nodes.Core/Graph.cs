@@ -3,53 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-namespace UNEB.Core
+namespace UNEB
 {
     /// <summary>
     /// A Serializable Graph Object
     /// </summary>
     /// <remarks>
-    /// Since I am implementing "Graph" as a <see cref="Object"/> - then this means it will be possible 
-    /// for one graph (or nodes in it) - to implement connections between  multiple graphs.
-    /// 
-    /// 
-    /// TODO: Graphs restricted to a specific node types:
-    /// [Serializable]
-    /// class BehaviourGraph : Graph&lt;BehaviourNodeBaseClass&gt;
-    /// {
-    ///    // extend with behaviour graph stuff
-    /// } 
-    /// 
-    /// TODO: User specified registration of supported nodes in a specified graph
-    /// void OnInitialize()
-    /// {
-    ///     SupportNodeType&lt;MathNodebase&gt;();
-    ///     SupportNodeType&lt;MatrixNodes&gt;();
-    /// }
     /// 
     /// </remarks>
     [Serializable]
-    public class Graph<TNodeType, TInputType, TOutputType> : 
+    public abstract class Graph: 
         Object, 
         ISerializationCallbackReceiver 
-        where TNodeType   : Node
-        where TInputType  : NodeInputBase
-        where TOutputType : NodeOutputBase
     {
  
         /// <summary>
-        /// ALL <see cref="GraphObject"/>s in the Graph. This includes <see cref="Node"/> types and <see cref="Connection"/> types.
+        /// ALL <see cref="GraphObject"/>s in the Graph. This includes <see cref="Node"/> types types.
         /// </summary>
-        //[SerializeField]
         List<GraphObject> m_Objects = new List<GraphObject>();
-
-
 
         protected event Action<GraphObject>
             OnAddObject,
             OnRemoveObject;
-
- 
 
 
         #region Cached Values
@@ -74,10 +49,12 @@ namespace UNEB.Core
         /// </summary>
         Node[] m_CachedNodes;
 
+
+
         ///// <summary>
         ///// Cached connection in our graph;
         ///// </summary>
-        //Connection[] m_CachedConnections;
+        Connection[] m_CachedConnections;
 
         /// <summary>
         /// Cached array of all objects (Arrays are faster to iterate than lists).
@@ -88,6 +65,10 @@ namespace UNEB.Core
         {
             if(m_IsModified)
             {
+                // Ensure reference ot Owner graph is assigned in all objects: 
+                SetGraphParents();
+
+
                 // cleanup any lingering objects that are null or destroyed.
                 m_Objects.RemoveNullOrDestroyedEntries();
                 // Update Nodes:
@@ -100,8 +81,30 @@ namespace UNEB.Core
 
                 m_IsModified = false;
 
+                UpdateConnectionCache(ref m_CachedConnections);
+
                 OnUpdateCache.TryInvoke();
             }
+        }
+
+
+        /// <summary>
+        /// Temporary list for <see cref="GetAllConnections"/>.
+        /// </summary>
+        static List<Connection> tmp_Connections = new List<Connection>();
+
+        /// <summary>
+        /// [NOT IMPLEMENTED]  Update Cached Connection infor between nodes.
+        /// </summary>
+        /// <param name="result"></param>
+        void UpdateConnectionCache(ref Connection[] result)
+        {
+            //throw new NotImplementedException("Node Inputs/Outputs must be implemented before Connection info array can be created");
+            //tmp_Connections.Clear();
+            //foreach(Node n in m_CachedNodes)
+            //{
+                
+            //}
         }
 
         /// <summary>
@@ -201,10 +204,10 @@ namespace UNEB.Core
         bool AddObjectToGraph(GraphObject obj)
         {
             if (!obj) return false;
-            if (obj.Owner && obj.Owner == this) // no change
+            if (obj.Owner && obj.Owner == this) // no change, object is already in this graph
                 return false;
 
-            if (obj.Owner)
+            if (obj.Owner) // remove objects from it's original graph
                 obj.Owner.RemoveObjectFromGraph(obj);
 
             if(RegisterGraphObject(obj))
@@ -241,39 +244,82 @@ namespace UNEB.Core
             return false;
         }
 
- 
-        
         /// <summary>
-        /// Add an object to this graph;
+        /// Adds a supported <see cref="Node"/> type.
+        /// If type is not marked as supported via <see cref="SupportNode{T}"/> or an inheriting type
+        /// this method will fail and return Null;
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public T AddNode<T>() where T : Node
+        {
+            if (IsNodeSupported<T>())
+                return AddObjectToGraph<T>();
+            return null;
+        }
+        
+
+        /// <summary>
+        /// If the specified <see cref="Node"/> is contained within this graph, it is removed and destroyed.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public bool DestroyNode(Node node)
+        {
+            if(node && Contains(node))
+            {
+                if(RemoveObjectFromGraph(node))
+                {
+                    node.Destroy();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// Alias of <see cref="AddObjectToGraph(GraphObject)"/>
         /// </summary>
         /// <param name="obj"></param>
-        public void AddObject(GraphObject obj)
+        void AddObject(GraphObject obj)
         {
             AddObjectToGraph(obj);
         }
 
-        public T AddObject<T>() where T : GraphObject
+        /// <summary>
+        /// Alias of <see cref="AddObjectToGraph{T}"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        T AddObject<T>() where T : GraphObject
         {
             T result = CreateInstance<T>();
             AddObjectToGraph(result);
             return result;
         }
 
-
-        public void RemoveObject(int index)
+        /// <summary>
+        /// Removes <see cref="GraphObject"/> item from graph at the specified index.
+        /// </summary> 
+        void RemoveObject(int index)
         { 
             RemoveObjectFromGraph(m_Objects[index]);
         }
 
-        public void RemoveObject(GraphObject obj)
+        /// <summary>
+        /// Alias of <see cref="RemoveObjectFromGraph(GraphObject)"/>
+        /// </summary>
+        /// <param name="obj"></param>
+        void RemoveObject(GraphObject obj)
         {
             RemoveObjectFromGraph(obj);
         }
 
         /// <summary>
-        /// Remove and Destroy a <see cref="GraphObject"/> in this graph.
+        /// Removes and Destroys a <see cref="GraphObject"/> in this graph.
+        /// This method will only succeed if the <see cref="GraphObject"/> is not destroyed 
+        /// and is an actual member of this <see cref="Graph"/> instance.
         /// </summary>
-        /// <param name="obj"></param>
         public bool DestroyObject(GraphObject obj)
         {
             if (!obj) return false;
@@ -331,11 +377,9 @@ namespace UNEB.Core
         /// <summary>
         /// Resolve a reference to a <see cref="GraphObject"/> only in the specified specified <see cref="Graph"/>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="result"></param>
-        /// <param name="guid"></param>
-        /// <param name="inGraph"></param>
-        /// <returns>True if graph contains matching <see cref="Object"/> of the specified type</returns>
+        /// <remarks>
+        /// // This is Unused - but may be useful in the future.
+        /// </remarks>
         internal static bool ResolveReference<T>(out T result, string guid, Graph inGraph) where T : GraphObject
         {
             result = null;
@@ -363,7 +407,7 @@ namespace UNEB.Core
         /*
          * 
          * Unity JSON serializer does not recognize each type in an array as a seperate type from the base type they inherit from.
-         * We manually serialize each object one by one to json and store the JSON strings as a a list.
+         * We manually serialize each object one by one to json and store the JSON strings as a list.
          * 
          */
 
@@ -393,7 +437,6 @@ namespace UNEB.Core
             for(int i = 0; i < m_GraphObjectSerializedData.Length && i < m_GraphObjectSerializedTypes.Length; i++)
             {
                 Type t = ReferencedTypeSerializationHelper.TryGetKnownType(m_GraphObjectSerializedTypes[i]);
-     
                 if(t != null)
                 {
                     m_Objects.Add((GraphObject)JsonUtility.FromJson(m_GraphObjectSerializedData[i], t)); 
@@ -406,23 +449,96 @@ namespace UNEB.Core
                     );
                 }
             }
+
+            SetGraphParents();
+
             m_IsModified = true;
             if (m_Objects.Count > 0)
                 OnDeserialized.TryInvoke();
+
+        }
+
+        /// <summary>
+        /// Ensures <see cref="GraphObject.Owner"/> is assigned to <see cref="GraphObject"/>.
+        /// </summary>
+        void SetGraphParents()
+        {
+            foreach (GraphObject obj in m_Objects)
+                obj.Owner = this;
         }
 
 
 
 
-        ///// <summary>
-        ///// Force Register a <see cref="GraphObject"/> type that is not known by the UNEB.Core namespace.
-        ///// </summary>
-        ///// <typeparam name="T"></typeparam>
-        //public static void ManuallyRegisterType<T>() where T: GraphObject
-        //{
-        //    ReferencedTypeSerializationHelper.MarkKnownType(typeof(T));
-        //}
+        #endregion
+
+
+
+
+
+        #region Node Type Restriction
+
+
+
+        /// <summary>
+        /// List of supported node types defined manually.
+        /// </summary>
+        List<Type> m_SupportedNodeTypes = new List<Type>();
+
+
+        /// <summary>
+        /// Support all node types inheriting from <see cref="Node"/>. 
+        /// This is the equivelant of passing <see cref="Node"/> as the <see cref="Type"/> Parameter to <see cref="SupportNode{T}"/>.
+        /// </summary>
+        protected void SupportAllNodeTypes()
+        {
+            SupportNode<Node>();
+        }
+
+
+        /// <summary>
+        /// Returns true if specified <see cref="Node"/> Type is marked as supported by this graph.
+        /// </summary>
+        public bool IsNodeSupported<T>() where T : Node
+        {
+            Type type = typeof(T);
+            if (m_SupportedNodeTypes.Contains(type))
+                return true;
+            foreach (Type t in m_SupportedNodeTypes)
+                if (t == type || t.IsSubclassOf(type))
+                    return true;
+            return false; 
+        }
+
+        /// <summary>
+        /// Registers a <see cref="TNodeType"/> and inheriting types to be supported by this node.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        protected void SupportNode<T>() where T : Node
+        {
+            Type t = typeof(T);
+            if (!IsNodeSupported<T>())
+                m_SupportedNodeTypes.Add(t);
+        }
+
+
+        /// <summary>
+        /// Array of node types supported by this graph. (Inheriting types of nodes/baseclasses supported by this graph are supported as well).
+        /// </summary>
+        public Type[] SupportedNodeTypes => m_SupportedNodeTypes.ToArray();
+
+
+ 
 
         #endregion
     }
+
+
+
+
+
+
+
+
+
 }

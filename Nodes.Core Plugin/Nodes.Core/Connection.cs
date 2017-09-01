@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace UNEB.Core
+namespace UNEB
 {
     /// <summary>
     /// Represents a connection between a <see cref="NodeOutputBase"/> and a <see cref="NodeInputBase"/> in a <see cref="Graph{TNodeType, TInputType, TOutputType}"/>
@@ -26,7 +26,17 @@ namespace UNEB.Core
         public Node OutputNode => m_NodeOutput.HasValue ? m_NodeOutput.TryGetValueAsType<Node>() : null;
 
         /// <summary>
-        /// Retrieves a node input if the input is of the specified type.
+        /// Returns reference to a <see cref="Graph"/> is referenced instance is loaded in memory and exists.
+        /// </summary>
+        public Graph Graph => InputNode && InputNode.Owner
+            ? InputNode.Owner
+            : OutputNode && OutputNode.Owner
+                ? OutputNode.Owner
+                : null;
+
+
+        /// <summary>
+        /// Retrieves a node input if the input is of the specified type or inheriting type
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -36,7 +46,7 @@ namespace UNEB.Core
         }
 
         /// <summary>
-        /// Retrieves 
+        /// Retrieves a node output if the output is of the specified type or inheriting type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>

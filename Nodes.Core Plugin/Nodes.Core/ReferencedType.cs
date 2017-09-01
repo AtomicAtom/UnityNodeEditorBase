@@ -5,7 +5,7 @@ using System.Text;
 
 using UnityEngine;
 
-namespace UNEB.Core
+namespace UNEB
 {
     /// <summary>
     /// Baseclass for serializable UNEB objects which supported preserveing references via JSON serializer.

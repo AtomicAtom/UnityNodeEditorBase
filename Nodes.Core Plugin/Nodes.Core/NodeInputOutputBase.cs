@@ -4,19 +4,19 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace UNEB.Core
+namespace UNEB
 {
     /// <summary>
-    /// Baseclass for <see cref="NodeInput"/> and <see cref="NodeOutput"/> ports on a <see cref="UNEB.Core.Node"/>
+    /// Baseclass for <see cref="NodeInput"/> and <see cref="NodeOutput"/> ports on a <see cref="UNEB.Node"/>
     /// </summary>
     /// <typeparam name="TNode"></typeparam>
     /// <typeparam name="TTarget"></typeparam>
     [Serializable]
-    public abstract class NodePort<TNode, TTarget, TSelf> :
+    public abstract class NodePort<TNode, TTarget, TSelf> : 
         Object,
         IConnection<TTarget, TNode>
-        where TNode : Node
-        where TSelf : NodePort<TNode, TTarget, TSelf>
+        where TNode   : Node
+        where TSelf   : NodePort<TNode, TTarget, TSelf>
         where TTarget : NodePort<TNode, TSelf, TTarget>
     {
 
@@ -25,13 +25,26 @@ namespace UNEB.Core
             m_Node,
             m_Target;
 
+        /// <summary>
+        /// Event triggered when this port is disonnected from anoher port.
+        /// </summary>
         public event Action<TTarget> OnDisconnect;
+
+        /// <summary>
+        /// Event triggered when this port is connected to a new port.
+        /// </summary>
         public event Action<TTarget> OnConnect;
 
         /// <summary>
-        /// Returns the parent node this Input or Output belongs to.
+        /// Returns the parent <see cref="Node"/> this <see cref="NodePort{TNode, TTarget, TSelf}"/> belongs to.
         /// </summary>
         public TNode Node => m_Node.TryGetValueAsType<TNode>();
+
+        /// <summary>
+        /// Returns the known graph of this port. 
+        /// Is this is not part of <see cref="Node"/> then this may likely return Null.
+        /// </summary>
+        public Graph Graph => Node ? Node.Owner : null;
 
         /// <summary>
         /// Returns true if Node is valid and connection is valid.
@@ -62,7 +75,9 @@ namespace UNEB.Core
         public abstract Connection GetConnection { get; }
 
 
-
+        /// <summary>
+        /// The port this port is connected to.
+        /// </summary>
         public TTarget Target => (TTarget)m_Target; 
 
 

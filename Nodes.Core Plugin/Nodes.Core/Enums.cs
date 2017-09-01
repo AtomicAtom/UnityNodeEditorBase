@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace UNEB.Core
+namespace UNEB
 {
 
 }

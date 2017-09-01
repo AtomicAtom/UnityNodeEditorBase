@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UNEB.Core
+namespace UNEB
 {
     /// <summary>
     /// Baseclass for everything in a <see cref="Graph"/>. This exposes the <see cref="Owner"/> property which enables a Node/Connection/etc to have a reference to the graph it resides in.
     /// </summary>
     [Serializable]
-    public class GraphObject : Object
+    public abstract class GraphObject : Object
     {
         [SerializeField]
         string m_Name;
@@ -17,7 +17,7 @@ namespace UNEB.Core
         /// Serializable Reference to the graph which owns this node.
         /// </summary>
         [SerializeField]
-        Reference m_Owner;
+        Reference m_Graph;
 
         /// <summary>
         /// Event triggered when this Graph Object is added to a graph or moved to a new graph.
@@ -34,13 +34,13 @@ namespace UNEB.Core
         {
             get
             {
-                return m_Owner.TryGetValueAsType<Graph>();
+                return m_Graph.TryGetValueAsType<Graph>();
             }
             internal set
             {
-                if(m_Owner != (Reference)value)
+                if(m_Graph != (Reference)value)
                 {
-                    m_Owner = value;
+                    m_Graph = value;
                     OnGraphChanged.TryInvoke(value);
                 } 
             }

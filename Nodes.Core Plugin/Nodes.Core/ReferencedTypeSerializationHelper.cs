@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using UnityEngine;
-namespace UNEB.Core
+namespace UNEB
 {
     /// <summary>
     /// 

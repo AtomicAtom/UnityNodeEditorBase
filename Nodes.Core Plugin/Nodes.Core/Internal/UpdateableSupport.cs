@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace UNEB.Core.Internal
+namespace UNEB.Internal
 {
     /// <summary>
     /// TODO: This is to be helper whichs will allows "Updateable" <see cref="GraphObject"/> types to exist - thus allowing an "Update" method to exis in GraphNodes (runtime only).
