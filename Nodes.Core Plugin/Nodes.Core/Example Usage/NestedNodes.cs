@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-namespace Nodes.Core.Example_Usage
+namespace UNEB.Core.Example_Usage
 {
     /// <summary>
     /// Basic Example which demonstrates what a tree of nodes nested inside of other nodes (A Node Tree) might look like.

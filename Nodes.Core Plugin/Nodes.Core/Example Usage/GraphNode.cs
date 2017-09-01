@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace Nodes.Core.Example_Usage
+namespace UNEB.Core.Example_Usage
 {
     /// <summary>
     /// Example that shows Graphs can be stored inside nodes even...

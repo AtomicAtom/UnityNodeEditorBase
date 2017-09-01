@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using UnityEngine;
-namespace Nodes.Core
+namespace UNEB.Core
 {
     /// <summary>
     /// 
@@ -84,7 +84,7 @@ namespace Nodes.Core
         static bool m_AreTypesInitialized;
 
         /// <summary>
-        /// helper which attempts to find and register, all external loaded types inheriting from <see cref="ReferencedType"/> 
+        /// helper which attempts to find and register, all external loaded types inheriting from <see cref="Object"/> 
         /// in all .NET/Moino assembies (including asset script assembly) currently loaded by Unity
         /// so we can actually recognize ALL serialized objects in a graph correctly on deserialization.
         /// </summary>
@@ -93,7 +93,7 @@ namespace Nodes.Core
             // We do this only once and cache all the types.
             if(!m_AreTypesInitialized)
             {
-                Assembly myAssembly = Assembly.GetAssembly(typeof(ReferencedType));
+                Assembly myAssembly = Assembly.GetAssembly(typeof(Object));
                 Assembly context = Assembly.GetEntryAssembly();
                 Assembly[] loaded = AppDomain.CurrentDomain.GetAssemblies();
                 //List<System.Type> t = new List<Type>();
@@ -127,19 +127,19 @@ namespace Nodes.Core
         static bool FilterType(Type t)
         {
             if (t.IsAbstract) return false;
-            if (t.IsSubclassOf(typeof(ReferencedType)) || typeof(ReferencedType).IsAssignableFrom(t))
+            if (t.IsSubclassOf(typeof(Object)) || typeof(Object).IsAssignableFrom(t))
                 return true;
             return false;
         }
 
 
         /// <summary>
-        /// Cached dictionary of all known types that inherit from <see cref="ReferencedType"/>
+        /// Cached dictionary of all known types that inherit from <see cref="Object"/>
         /// </summary>
         static Dictionary<string, Type> m_KnownTypes = new Dictionary<string, Type>();
 
 
-        internal static void MarkKnownType(ReferencedType obj)
+        internal static void MarkKnownType(Object obj)
         {
             if (!obj) return;
             MarkKnownType(obj.GetType());
@@ -164,11 +164,11 @@ namespace Nodes.Core
 
 
         /// <summary>
-        /// Helper to get all types that inherit from '<typeparamref name="T"/>, <see cref="ReferencedType"/>'.
+        /// Helper to get all types that inherit from '<typeparamref name="T"/>, <see cref="Object"/>'.
         /// The results include types in ALL loaded .NET/MONO assemblies currently loaded by unity - including those defined in loose
         /// C# scripts within the assets folder.
         /// </summary>
-        public static Type[] GetAllInheritedTypes<T>() where T : ReferencedType
+        public static Type[] GetAllInheritedTypes<T>() where T : Object
         {
             CheckSerializationInitialized();
             m_TempTypes.Clear();

@@ -5,12 +5,12 @@ using System.Text;
 
 using UnityEngine;
 
-namespace Nodes.Core
+namespace UNEB.Core
 {
     /// <summary>
-    /// baseclass for anything that can be referenced and have references to it restored via a <see cref="Reference"/> type, including nodes/connections/etc;
+    /// Baseclass for serializable UNEB objects which supported preserveing references via JSON serializer.
     /// </summary>
-    public abstract class ReferencedType : 
+    public abstract class Object : 
         System.IDisposable , 
         ISerializationCallbackReceiver
     {
@@ -18,15 +18,15 @@ namespace Nodes.Core
         string m_ID = System.Guid.NewGuid().ToString();
 
         /// <summary>
-        /// All <see cref="ReferencedType"/> objects in memory. This includes all graphs, nodes, connections - etc. Used only to help resolve references
+        /// All <see cref="Object"/> objects in memory. This includes all graphs, nodes, connections - etc. Used only to help resolve references
         /// after a Graph is serialized.
         /// </summary>
-        static List<ReferencedType> m_AllInMemory = new List<ReferencedType>();
+        static List<Object> m_AllInMemory = new List<Object>();
 
         /// <summary>
-        /// Memory items are cast to  array for  faster iteration when needed and cached;
+        /// Memory items are cast to  array for  faster iteration when needed and are cached;
         /// </summary>
-        static ReferencedType[] m_AllInMemoryAsArray;
+        static Object[] m_AllInMemoryAsArray;
         static bool m_AllInMemoryModified;
         static int  m_ObjectCount;
 
@@ -37,7 +37,7 @@ namespace Nodes.Core
 
 
         /// <summary>
-        /// Cached array of all known types that inherit from <see cref="ReferencedType"/>.
+        /// Cached array of all known types that inherit from <see cref="Object"/>.
         /// </summary>
         static Type[] m_AllInheritedReferencedTypes;
 
@@ -77,7 +77,7 @@ namespace Nodes.Core
 
      
         /// <summary>
-        /// Returns an array of all known types which inherit from <see cref="ReferencedType"/>, not including abstract types.
+        /// Returns an array of all known types which inherit from <see cref="Object"/>, not including abstract types.
         /// This includes types in all loaded .NET/Mono assemblies, including those defined by scripts in the unity assets folder.
         /// </summary>
         public static Type[] AllInheritingTypes
@@ -85,7 +85,7 @@ namespace Nodes.Core
             get
             {
                 if (m_AllInheritedReferencedTypes == null)
-                    m_AllInheritedReferencedTypes = ReferencedTypeSerializationHelper.GetAllInheritedTypes<ReferencedType>();
+                    m_AllInheritedReferencedTypes = ReferencedTypeSerializationHelper.GetAllInheritedTypes<Object>();
 
                 // we return a copy so the original cached array cannot be modified by reference
                 return (Type[])m_AllInheritedReferencedTypes.Clone();
@@ -96,7 +96,7 @@ namespace Nodes.Core
         #endregion
 
 
-        protected ReferencedType()
+        protected Object()
         {
             ReferencedTypeSerializationHelper.CheckSerializationInitialized();
             ReferencedTypeSerializationHelper.MarkKnownType(this);
@@ -109,7 +109,7 @@ namespace Nodes.Core
         /// <summary>
         /// This is added so the object is actually removed from lists.
         /// </summary>
-        ~ReferencedType()
+        ~Object()
         {
             if (!IsDestroyed)
                 Destroy();
@@ -126,23 +126,23 @@ namespace Nodes.Core
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T CreateInstance<T>() where T : ReferencedType
+        public static T CreateInstance<T>() where T : Object
         {
             T result = System.Activator.CreateInstance<T>(); 
             return result;
         }
 
         /// <summary>
-        /// Used to resolve a reference to a <see cref="ReferencedType"/> object via a GUID.
+        /// Used to resolve a reference to a <see cref="Object"/> object via a GUID.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="result"></param>
         /// <param name="guid"></param>
         /// <returns></returns>
-        internal static bool ResolveReference<T>(out T result, string guid) where T : ReferencedType
+        internal static bool ResolveReference<T>(out T result, string guid) where T : Object
         {
             UpdateMemoryArrayIfModified();
-            ReferencedType curr;
+            Object curr;
             result = null;
             for(int i = 0; i < m_ObjectCount; i++)
             {
@@ -171,7 +171,7 @@ namespace Nodes.Core
             {
                 m_ObjectCount = m_AllInMemory.Count;
                 if (m_AllInMemoryAsArray == null)
-                    m_AllInMemoryAsArray = new ReferencedType[m_ObjectCount];
+                    m_AllInMemoryAsArray = new Object[m_ObjectCount];
                 if (m_AllInMemoryAsArray.Length < m_ObjectCount)
                     Array.Resize(ref m_AllInMemoryAsArray, m_ObjectCount);
                 m_AllInMemory.CopyTo(m_AllInMemoryAsArray);
@@ -235,7 +235,7 @@ namespace Nodes.Core
         /// Allows these objects to be cast as bool like unity objects.
         /// </summary>
         /// <param name="type"></param>
-        public static implicit operator bool(ReferencedType type)
+        public static implicit operator bool(Object type)
         {
             return type != null && !type.IsDestroyed;
         }

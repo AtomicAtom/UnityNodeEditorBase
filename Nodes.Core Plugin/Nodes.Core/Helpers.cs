@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace Nodes.Core
+namespace UNEB.Core
 {
     /// <summary>
     /// General Purpose Helpers.
@@ -53,11 +53,11 @@ namespace Nodes.Core
         static List<object> m_TempList = new List<object>();
 
         /// <summary>
-        /// Helper to cleanup a list of <see cref="ReferencedType"/> objects that are either null or marked as destroyed.
+        /// Helper to cleanup a list of <see cref="Object"/> objects that are either null or marked as destroyed.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="inList"></param>
-        public static void RemoveNullOrDestroyedEntries<T>(this IList<T> inList) where T : ReferencedType
+        public static void RemoveNullOrDestroyedEntries<T>(this IList<T> inList) where T : Object
         {
             int i = 0;
             while(i < inList.Count)

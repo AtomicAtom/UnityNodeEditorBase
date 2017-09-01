@@ -3,52 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-namespace Nodes.Core
+namespace UNEB.Core
 {
     [Serializable]
-    public abstract class NodeInputBase : ReferencedType, IConnection<NodeOutputBase>
+    public abstract class NodeInputBase<TNode> :
+        NodePort<TNode, NodeOutputBase<TNode>, NodeInputBase<TNode>>
+        where TNode : Node
     {
-        Reference m_Output;
+ 
+    }
 
-        public NodeOutputBase Output
-        {
-            get
-            {
-                return m_Output.TryGetValueAsType<NodeOutputBase>();
-            }
-        }
 
-        public bool IsConnected
-        {
-            get
-            {
-                return Output && Output.IsConnected;
-            }
-        }
-
-        bool IConnection<NodeOutputBase>.IsConnected { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public event Action<NodeOutputBase> OnDisconnect;
-        public event Action<NodeOutputBase> OnConnect;
-
-        public bool CanConnect(NodeOutputBase target)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Disconnect()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TryConnect(NodeOutputBase target)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TryGetValue<T>(out T result)
-        {
-            throw new NotImplementedException();
-        }
+    /// <summary>
+    /// Basic Node Input
+    /// </summary>
+    [Serializable]
+    public class NodeInput : NodeInputBase<Node>
+    {
+        /// <summary>
+        /// Returns the <see cref="Connection"/> for this <see cref="NodeInput"/>. 
+        /// If not <see cref="NodePort{TNode, TTarget, TSelf}.IsConnected"/>, this will return <see cref="Connection.Empty"/>
+        /// </summary>
+        public override Connection GetConnection => this;
     }
 }

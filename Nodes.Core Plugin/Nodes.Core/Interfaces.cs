@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Nodes.Core
+namespace UNEB.Core
 {
-    public interface IConnection<TTarget> 
+    public interface IConnection<TTarget, TOwner> where TOwner : Node 
     {
 
         event Action<TTarget>
             OnDisconnect,
             OnConnect;
 
-        bool IsConnected { get; set; }
+        TOwner Node { get; }
+
+        bool IsConnected { get;}
 
 
         /// <summary>
@@ -25,7 +27,26 @@ namespace Nodes.Core
  
         bool Disconnect();
 
-        bool TryGetValue<T>(out T result);
+        //bool TryGetValue<T>(out T result);
 
+
+        /// <summary>
+        /// Returns a <see cref="Connection"/> info for this.
+        /// </summary>
+        Connection GetConnection { get; }
+
+    }
+
+
+    /// <summary>
+    /// Common interface for <see cref="Object"/> types which are children to a <see cref="TNodeType"/>.
+    /// </summary>
+    /// <typeparam name="TNodeType"></typeparam>
+    public interface INodeChild<TNodeType>
+    {
+
+        TNodeType Node { get; }
+
+        void OnInitialize(TNodeType parent);
     }
 }

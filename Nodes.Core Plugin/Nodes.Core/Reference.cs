@@ -5,13 +5,13 @@ using System.Text;
 
 using UnityEngine;
 
-namespace Nodes.Core
+namespace UNEB.Core
 {
 
     
 
     /// <summary>
-    /// Serializable Reference for <see cref="ReferencedType"/> objects. All inheriting types should use <see cref="System.SerializableAttribute"/>.
+    /// Serializable Reference for <see cref="Object"/> objects. All inheriting types should use <see cref="System.SerializableAttribute"/>.
     /// 
     /// 
     /// This is to behave similar to unity's new ExposedReference struct (which does not accommodate Non Unity objects),
@@ -19,10 +19,10 @@ namespace Nodes.Core
     /// </summary> 
     /// <remarks>
     /// Originally I intended to use a baseclass and have inheriting types for seperate class type references - but this would imply
-    /// creating seperate operators for every type. So instead we can just use one reference type for ALL <see cref="ReferencedType"/> objects instead. 
+    /// creating seperate operators for every type. So instead we can just use one reference type for ALL <see cref="Object"/> objects instead. 
     /// </remarks>
     [Serializable]
-    public struct Reference : IEquatable<Reference> , IEquatable<ReferencedType>
+    public struct Reference : IEquatable<Reference> , IEquatable<Object>
     {
         /// <summary>
         /// An empty reference. Casts to (Null).
@@ -37,7 +37,7 @@ namespace Nodes.Core
 
  
 
-        ReferencedType m_Value;
+        Object m_Value;
  
         /// <summary>
         /// Serialized guid needed to resolved reference after deserialization;
@@ -53,7 +53,7 @@ namespace Nodes.Core
             }
         }
 
-        public ReferencedType Value
+        public Object Value
         {
             get
             {
@@ -77,24 +77,24 @@ namespace Nodes.Core
             {
                 return HasValue
                     ? Value.GetType()
-                    : typeof(ReferencedType);
+                    : typeof(Object);
             }
         }
 
-        internal Reference(ReferencedType value) : this()
+        internal Reference(Object value) : this()
         {
             Set(value);
         }
 
 
-        ReferencedType Get()
+        Object Get()
         {
             if (string.IsNullOrEmpty(m_ReferenceGuid))
                 return null;
 
             if (m_Value == null || m_Value.GUID != m_ReferenceGuid)
             {
-                ReferencedType.ResolveReference(out m_Value, m_ReferenceGuid);
+                Object.ResolveReference(out m_Value, m_ReferenceGuid);
             }
 
             return m_Value;
@@ -136,7 +136,7 @@ namespace Nodes.Core
         //    }
         //}
 
-        internal void Set(ReferencedType value)
+        internal void Set(Object value)
         {
             if (value == null)
             {
@@ -150,7 +150,7 @@ namespace Nodes.Core
 
 
 
-        public T TryGetValueAsType<T>() where T : ReferencedType
+        public T TryGetValueAsType<T>() where T : Object
         {
             return Value is T
                 ? (T)Value
@@ -167,7 +167,7 @@ namespace Nodes.Core
         public override bool Equals(object obj)
         {
             if (obj is Reference     ) return Equals((Reference)obj);
-            if (obj is ReferencedType) return Equals((ReferencedType)obj);
+            if (obj is Object) return Equals((Object)obj);
             return false;
         }
 
@@ -176,7 +176,7 @@ namespace Nodes.Core
             return other.m_ReferenceGuid == m_ReferenceGuid;
         }
 
-        public bool Equals(ReferencedType other)
+        public bool Equals(Object other)
         {
             if (!HasValue) return false;
             if (other == null || other.IsDestroyed) return false;
@@ -186,14 +186,14 @@ namespace Nodes.Core
 
         #region Operators
 
-        public static implicit operator ReferencedType(Reference reference)
+        public static implicit operator Object(Reference reference)
         {
             if (!reference.HasValue || reference == Empty)
                 return null;
             return reference.Value;
         }
  
-        public static implicit operator Reference(ReferencedType value)
+        public static implicit operator Reference(Object value)
         {
             if (value == null || value.IsDestroyed)
                 return Empty;
@@ -210,20 +210,20 @@ namespace Nodes.Core
             return !a.Equals(b);
         }
  
-        public static bool operator ==(Reference a, ReferencedType b)
+        public static bool operator ==(Reference a, Object b)
         {
             return a.Equals(b);
         }
-        public static bool operator !=(Reference a, ReferencedType b)
+        public static bool operator !=(Reference a, Object b)
         {
             return !a.Equals(b);
         }
 
-        public static bool operator ==(ReferencedType a, Reference b)
+        public static bool operator ==(Object a, Reference b)
         { 
             return b.Equals(a);
         }
-        public static bool operator !=(ReferencedType a, Reference b)
+        public static bool operator !=(Object a, Reference b)
         {
             return !b.Equals(a);
         }

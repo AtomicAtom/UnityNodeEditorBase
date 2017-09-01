@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 using UnityEngine;
-namespace Nodes.Core
+namespace UNEB.Core
 {
     /// <summary>
     /// Baseclass for all Node Types. Inheriting Types must implement the <see cref="System.SerializableAttribute"/>.

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-namespace Nodes.Core
+namespace UNEB.Core
 {
     /// <summary>
     /// A Serializable Graph Object
     /// </summary>
     /// <remarks>
-    /// Since I am implementing "Graph" as a <see cref="ReferencedType"/> - then this means it will be possible 
+    /// Since I am implementing "Graph" as a <see cref="Object"/> - then this means it will be possible 
     /// for one graph (or nodes in it) - to implement connections between  multiple graphs.
     /// 
     /// 
@@ -29,14 +29,14 @@ namespace Nodes.Core
     /// 
     /// </remarks>
     [Serializable]
-    public class Graph : ReferencedType, ISerializationCallbackReceiver
+    public class Graph<TNodeType, TInputType, TOutputType> : 
+        Object, 
+        ISerializationCallbackReceiver 
+        where TNodeType   : Node
+        where TInputType  : NodeInputBase
+        where TOutputType : NodeOutputBase
     {
-
-
-
-
  
-
         /// <summary>
         /// ALL <see cref="GraphObject"/>s in the Graph. This includes <see cref="Node"/> types and <see cref="Connection"/> types.
         /// </summary>
@@ -335,7 +335,7 @@ namespace Nodes.Core
         /// <param name="result"></param>
         /// <param name="guid"></param>
         /// <param name="inGraph"></param>
-        /// <returns>True if graph contains matching <see cref="ReferencedType"/> of the specified type</returns>
+        /// <returns>True if graph contains matching <see cref="Object"/> of the specified type</returns>
         internal static bool ResolveReference<T>(out T result, string guid, Graph inGraph) where T : GraphObject
         {
             result = null;
@@ -415,7 +415,7 @@ namespace Nodes.Core
 
 
         ///// <summary>
-        ///// Force Register a <see cref="GraphObject"/> type that is not known by the Nodes.Core namespace.
+        ///// Force Register a <see cref="GraphObject"/> type that is not known by the UNEB.Core namespace.
         ///// </summary>
         ///// <typeparam name="T"></typeparam>
         //public static void ManuallyRegisterType<T>() where T: GraphObject

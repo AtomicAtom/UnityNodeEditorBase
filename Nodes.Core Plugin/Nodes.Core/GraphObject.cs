@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Nodes.Core
+namespace UNEB.Core
 {
     /// <summary>
     /// Baseclass for everything in a <see cref="Graph"/>. This exposes the <see cref="Owner"/> property which enables a Node/Connection/etc to have a reference to the graph it resides in.
     /// </summary>
     [Serializable]
-    public class GraphObject : ReferencedType
+    public class GraphObject : Object
     {
         [SerializeField]
         string m_Name;
