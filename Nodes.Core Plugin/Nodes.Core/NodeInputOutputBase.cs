@@ -44,7 +44,7 @@ namespace UNEB
         /// Returns the known graph of this port. 
         /// Is this is not part of <see cref="Node"/> then this may likely return Null.
         /// </summary>
-        public Graph Graph => Node ? Node.Owner : null;
+        public Graph Graph => Node ? Node.Graph : null;
 
         /// <summary>
         /// Returns true if Node is valid and connection is valid.

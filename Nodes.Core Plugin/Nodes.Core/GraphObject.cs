@@ -5,7 +5,7 @@ using UnityEngine;
 namespace UNEB
 {
     /// <summary>
-    /// Baseclass for everything in a <see cref="Graph"/>. This exposes the <see cref="Owner"/> property which enables a Node/Connection/etc to have a reference to the graph it resides in.
+    /// Baseclass for everything in a <see cref="UNEB.Graph"/>. This exposes the <see cref="Graph"/> property which enables a Node/Connection/etc to have a reference to the graph it resides in.
     /// </summary>
     [Serializable]
     public abstract class GraphObject : Object
@@ -30,7 +30,7 @@ namespace UNEB
         /// <summary>
         /// The Graph this node belongs to
         /// </summary>
-        public Graph Owner
+        public Graph Graph
         {
             get
             {

@@ -28,10 +28,10 @@ namespace UNEB
         /// <summary>
         /// Returns reference to a <see cref="Graph"/> is referenced instance is loaded in memory and exists.
         /// </summary>
-        public Graph Graph => InputNode && InputNode.Owner
-            ? InputNode.Owner
-            : OutputNode && OutputNode.Owner
-                ? OutputNode.Owner
+        public Graph Graph => InputNode && InputNode.Graph
+            ? InputNode.Graph
+            : OutputNode && OutputNode.Graph
+                ? OutputNode.Graph
                 : null;
 
 

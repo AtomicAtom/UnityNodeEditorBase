@@ -14,72 +14,12 @@ namespace UNEB
     /// </remarks>
     static internal class ReferencedTypeSerializationHelper
     {
+        /// <summary>
+        /// The base type of all our custom serializable objects.
+        /// </summary>
+        static readonly Type BaseType = typeof(Internal.SerializableObject);
 
         static List<Type> m_TempTypes = new List<Type>();
-
-        ///// <summary>
-        ///// Static Cache of serializable fields in an object
-        ///// </summary>
-        //static Dictionary<string, FieldInfo[]> m_FieldCache = new Dictionary<string, FieldInfo[]>();
-
-        //static List<FieldInfo> m_TmpMembers = new List<FieldInfo>();
-        //static List<FieldInfo> m_TmpMembers2 = new List<FieldInfo>();
-
-
-        //static internal FieldInfo[] GetSerializableFields(this ReferencedType t)
-        //{
-        //    if (!m_FieldCache.ContainsKey(t.GetType().FullName))
-        //    {
-        //        m_FieldCache.Add(t.GetType().FullName, FindSerializableFields(t.GetType()));
-        //    }
-        //    return m_FieldCache[t.GetType().FullName];
-        //}
-
-
-        //static internal FieldInfo[] FindSerializableFields(Type t)
-        //{
-        //    m_TmpMembers.Clear();
-        //    m_TmpMembers2.Clear();
-        //    m_TmpMembers.AddRange(t.GetFields(BindingFlags.Public | BindingFlags.NonPublic));
-        //    FieldInfo current;
-        //    while (m_TmpMembers.Count > 0)
-        //    {
-        //        current = m_TmpMembers[0];
-        //        if (FilterFieldMemberInfo(current, null))
-        //        {
-        //            m_TmpMembers2.Add(current);
-        //        }
-        //    }
-        //    return m_TmpMembers2.ToArray();
-        //}
-
-        //static bool FilterFieldMemberInfo(FieldInfo f, object unused)
-        //{
-        //    // TODO: any other filtering stuff.
-        //    if (CanSerializeFieldAttribute(f))
-        //    {
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
-
-        //static bool CanSerializeFieldAttribute(FieldInfo f)
-        //{
-        //    if (f.IsStatic || f.IsInitOnly || f.IsNotSerialized)
-        //        return false;
-
-        //    if (f.IsPublic) return true;
-
-        //    object[] attrib = f.GetCustomAttributes(true);
-
-        //    for (int i = 0; i < attrib.Length; i++)
-        //    {
-        //        if (attrib[i] is NonSerializedAttribute) return false;
-        //        if (attrib[i] is SerializeField) return true;
-        //    }
-        //    return false;
-        //}
 
         static bool m_AreTypesInitialized;
 
@@ -127,7 +67,7 @@ namespace UNEB
         static bool FilterType(Type t)
         {
             if (t.IsAbstract) return false;
-            if (t.IsSubclassOf(typeof(Object)) || typeof(Object).IsAssignableFrom(t))
+            if (t.IsSubclassOf(BaseType) || BaseType.IsAssignableFrom(t))
                 return true;
             return false;
         }
@@ -152,6 +92,11 @@ namespace UNEB
                 m_KnownTypes.Add(type.FullName, type);
         }
 
+        /// <summary>
+        /// Get known <see cref="Internal.SerializableObject"/> type.
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <returns></returns>
         internal static Type TryGetKnownType(string typeName)
         {
             return m_KnownTypes.ContainsKey(typeName)
@@ -168,7 +113,7 @@ namespace UNEB
         /// The results include types in ALL loaded .NET/MONO assemblies currently loaded by unity - including those defined in loose
         /// C# scripts within the assets folder.
         /// </summary>
-        public static Type[] GetAllInheritedTypes<T>() where T : Object
+        public static Type[] GetAllInheritedTypes<T>() where T : Internal.SerializableObject
         {
             CheckSerializationInitialized();
             m_TempTypes.Clear();

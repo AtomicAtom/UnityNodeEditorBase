@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Collections;
 
 namespace UNEB
 {
@@ -14,7 +15,7 @@ namespace UNEB
     [Serializable]
     public abstract class Graph: 
         Object, 
-        ISerializationCallbackReceiver 
+        IEnumerable<GraphObject>  
     {
  
         /// <summary>
@@ -25,6 +26,16 @@ namespace UNEB
         protected event Action<GraphObject>
             OnAddObject,
             OnRemoveObject;
+
+
+
+
+        protected Graph()
+        {
+            OnSerializeInternal   += Graph_OnBeforeSerialize;
+            OnDeserializeInternal += Graph_OnAfterDeserialize;
+        }
+
 
 
         #region Cached Values
@@ -60,6 +71,13 @@ namespace UNEB
         /// Cached array of all objects (Arrays are faster to iterate than lists).
         /// </summary>
         GraphObject[] m_CachedAllObjects;
+
+
+
+
+
+
+
 
         void UpdateCacheIfDirty()
         {
@@ -161,6 +179,7 @@ namespace UNEB
 
         bool RegisterGraphObject(GraphObject obj)
         {
+            ThrowIfDestroyed();
             if(obj && !m_Objects.Contains(obj))
             {
                 m_Objects.Add(obj);
@@ -173,6 +192,7 @@ namespace UNEB
 
         void UnRegisterGraphObject(GraphObject obj)
         {
+            ThrowIfDestroyed();
             if (obj && m_Objects.Remove(obj))
             {
                 OnRemoveObject.TryInvoke(obj);
@@ -200,24 +220,30 @@ namespace UNEB
         }
  
 
-
+        /// <summary>
+        /// Ads an object to the graph.
+        /// </summary> 
         bool AddObjectToGraph(GraphObject obj)
         {
             if (!obj) return false;
-            if (obj.Owner && obj.Owner == this) // no change, object is already in this graph
+            if (obj.Graph && obj.Graph == this) // no change, object is already in this graph
                 return false;
 
-            if (obj.Owner) // remove objects from it's original graph
-                obj.Owner.RemoveObjectFromGraph(obj);
+            if (obj.Graph) // remove object from it's original graph
+                obj.Graph.RemoveObjectFromGraph(obj);
 
             if(RegisterGraphObject(obj))
             {
-                obj.Owner = this;
+                obj.Graph = this;
                 return true;
             }
             return false;
         }
 
+        /// <summary>
+        /// Adds an object to the <see cref="Graph"/>. 
+        /// This can be any <see cref="GraphObject"/> type, not just <see cref="Node"/> types.
+        /// </summary> 
         T AddObjectToGraph<T>() where T : GraphObject
         {
             T result = CreateInstance<T>();
@@ -356,11 +382,7 @@ namespace UNEB
 
  
 
-
-        internal IEnumerator<GraphObject> GetEnumerator()
-        {
-            return m_Objects.AsEnumerable().GetEnumerator();
-        }
+ 
 
 
 
@@ -417,7 +439,7 @@ namespace UNEB
         [SerializeField, HideInInspector]
         string[] m_GraphObjectSerializedTypes = new string[0];
 
-        void ISerializationCallbackReceiver.OnBeforeSerialize()
+        void Graph_OnBeforeSerialize()
         {
             UpdateCacheIfDirty();
             m_GraphObjectSerializedData = new string[m_Objects.Count];
@@ -431,7 +453,7 @@ namespace UNEB
         }
 
 
-        void ISerializationCallbackReceiver.OnAfterDeserialize()
+        void Graph_OnAfterDeserialize()
         {
             m_Objects.Clear(); 
             for(int i = 0; i < m_GraphObjectSerializedData.Length && i < m_GraphObjectSerializedTypes.Length; i++)
@@ -459,12 +481,12 @@ namespace UNEB
         }
 
         /// <summary>
-        /// Ensures <see cref="GraphObject.Owner"/> is assigned to <see cref="GraphObject"/>.
+        /// Ensures <see cref="GraphObject.Graph"/> is assigned to <see cref="GraphObject"/>.
         /// </summary>
         void SetGraphParents()
         {
             foreach (GraphObject obj in m_Objects)
-                obj.Owner = this;
+                obj.Graph = this;
         }
 
 
@@ -520,6 +542,19 @@ namespace UNEB
             if (!IsNodeSupported<T>())
                 m_SupportedNodeTypes.Add(t);
         }
+
+
+        public IEnumerator<GraphObject> GetEnumerator()
+        {
+            return m_Objects.AsEnumerable().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+
 
 
         /// <summary>
