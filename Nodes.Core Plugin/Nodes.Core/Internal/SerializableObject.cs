@@ -41,6 +41,18 @@ namespace UNEB.Internal
             }
         }
 
+
+        public bool IsType<T>()
+        {
+            return IsType(typeof(T));
+        }
+
+        public virtual bool IsType(Type type)
+        {
+            return GetType() == type || GetType().IsSubclassOf(type);
+        }
+
+
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             if (IsDestroyed) return;

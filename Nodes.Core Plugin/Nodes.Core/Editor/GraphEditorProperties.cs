@@ -11,7 +11,33 @@ namespace UNEB.Editor
     /// TODO: Can be saved as seperate json file or in a unity serializable object. 
     ///       -- preserved references if both the graph and serializable propertiesoare desrialized and loaded into memory at same time.
     /// </summary>
-    class GraphEditorPropertyCollection
+    public class GraphEditorProperties<T> : 
+        Internal.SerializableObject 
+        where T : Object
     {
+
+        
+
+
+
+
+
+
+
+        #region PropertyCollection (per object reference)
+
+        [Serializable]
+        class PropertyCollection
+        {
+
+        }
+
+        #endregion
+
+        #region Property
+
+
+
+        #endregion
     }
 }

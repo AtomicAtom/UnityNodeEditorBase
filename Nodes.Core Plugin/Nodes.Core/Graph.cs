@@ -13,7 +13,7 @@ namespace UNEB
     /// 
     /// </remarks>
     [Serializable]
-    public abstract class Graph: 
+    public abstract partial class Graph: 
         Object, 
         IEnumerable<GraphObject>  
     {
@@ -53,7 +53,7 @@ namespace UNEB
         /// (this will trigger in both Play and Edit modes in Unity via Unity's internal serializers).
         /// </summary>
         public event Action
-            OnDeserialized;
+            OnGraphDeserialized;
 
         /// <summary>
         /// Chached nodes in our graph
@@ -442,42 +442,27 @@ namespace UNEB
         void Graph_OnBeforeSerialize()
         {
             UpdateCacheIfDirty();
-            m_GraphObjectSerializedData = new string[m_Objects.Count];
-            m_GraphObjectSerializedTypes = new string[m_Objects.Count];
-            for (int i = 0; i < m_Objects.Count; i++)
-            {
-                m_GraphObjectSerializedData[i] = JsonUtility.ToJson(m_Objects[i]);
-                Type T = m_Objects[i].GetType();
-                m_GraphObjectSerializedTypes[i] = T.FullName;
-            }
+            //m_GraphObjectSerializedData = new string[m_Objects.Count];
+            //m_GraphObjectSerializedTypes = new string[m_Objects.Count];
+            //for (int i = 0; i < m_Objects.Count; i++)
+            //{
+            //    m_GraphObjectSerializedData[i] = JsonUtility.ToJson(m_Objects[i]);
+            //    Type T = m_Objects[i].GetType();
+            //    m_GraphObjectSerializedTypes[i] = T.FullName;
+            //} 
+            m_Objects.Serialize_PerItem(ref m_GraphObjectSerializedTypes, ref m_GraphObjectSerializedData); 
         }
 
 
         void Graph_OnAfterDeserialize()
         {
-            m_Objects.Clear(); 
-            for(int i = 0; i < m_GraphObjectSerializedData.Length && i < m_GraphObjectSerializedTypes.Length; i++)
-            {
-                Type t = ReferencedTypeSerializationHelper.TryGetKnownType(m_GraphObjectSerializedTypes[i]);
-                if(t != null)
-                {
-                    m_Objects.Add((GraphObject)JsonUtility.FromJson(m_GraphObjectSerializedData[i], t)); 
-                }
-                else
-                {
-                    Debug.LogWarning
-                    (
-                        string.Format("Unable to deserialize Graph Object of type '{0}' because it's type could not be found.", m_GraphObjectSerializedTypes[i])
-                    );
-                }
-            }
+            m_Objects.Deserialize_PerItem(m_GraphObjectSerializedTypes, m_GraphObjectSerializedData);
 
             SetGraphParents();
 
             m_IsModified = true;
             if (m_Objects.Count > 0)
-                OnDeserialized.TryInvoke();
-
+                OnGraphDeserialized.TryInvoke(); 
         }
 
         /// <summary>

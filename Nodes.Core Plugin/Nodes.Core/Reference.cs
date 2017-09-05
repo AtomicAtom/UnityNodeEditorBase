@@ -7,9 +7,6 @@ using UnityEngine;
 
 namespace UNEB
 {
-
-    
-
     /// <summary>
     /// Serializable Reference for <see cref="Object"/> objects. All inheriting types should use <see cref="System.SerializableAttribute"/>.
     /// 
